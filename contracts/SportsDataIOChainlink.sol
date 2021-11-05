@@ -3,20 +3,35 @@ pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
+/**
+ * Request testnet LINK and ETH here: https://faucets.chain.link/
+ * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
+ */
+
+/**
+ * THIS IS AN EXAMPLE CONTRACT WHICH USES HARDCODED VALUES FOR CLARITY.
+ * PLEASE DO NOT USE THIS CODE IN PRODUCTION.
+ */
 contract SportsDataIOChainlink is ChainlinkClient {
     using Chainlink for Chainlink.Request;
   
-    uint256 public volume;
+    uint256 public games;
     
     address private oracle;
     bytes32 private jobId;
     uint256 private fee;
     
-
+    /**
+     * Network: Kovan
+     * Oracle: 0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8 (Chainlink Devrel   
+     * Node)
+     * Job ID: d5270d1c311941d0b08bead21fea7747
+     * Fee: 0.1 LINK
+     */
     constructor() {
         setPublicChainlinkToken();
-        oracle = 0xfF07C97631Ff3bAb5e5e5660Cdf47AdEd8D4d4Fd;
-        jobId = "88aa04e5bc864ccc83103209c2c979ec";      
+        oracle = 0x5cBace36c9Eb2016dE3E28b1b036F4E21D6e7e1c;
+        jobId = "9d6108af73744528a6fb1003a8eb2834";
         fee = 0.1 * 10 ** 18; // (Varies by network and job)
     }
     
@@ -28,24 +43,13 @@ contract SportsDataIOChainlink is ChainlinkClient {
     {
         Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         
-        // Set the URL to perform the GET request on
-        request.add("get", "https://api.sportsdata.io/v3/soccer/scores/json/Areas");
         
-        // Set the path to find the desired data in the API response, where the response format is:
-        // {"RAW":
-        //   {"ETH":
-        //    {"USD":
-        //     {
-        //      "VOLUME24HOUR": xxx.xxx,
-        //     }
-        //    }
-        //   }
-        //  }
-        request.add("path", "AreaId.CountryCode.Name.Competitions");
         
-        // Multiply the result by 1000000000000000000 to remove decimals
-        int timesAmount = 10**18;
-        request.addInt("times", timesAmount);
+        
+      
+        request.add("playerId", "90026231");
+        
+       
         
         // Sends the request
         return sendChainlinkRequestTo(oracle, request, fee);
@@ -54,9 +58,9 @@ contract SportsDataIOChainlink is ChainlinkClient {
     /**
      * Receive the response in the form of uint256
      */ 
-    function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId)
+    function fulfill(bytes32 _requestId, uint256 _games) public recordChainlinkFulfillment(_requestId)
     {
-        volume = _volume;
+        games = _games;
     }
 
     // function withdrawLink() external {} - Implement a withdraw function to avoid locking your LINK in the contract
